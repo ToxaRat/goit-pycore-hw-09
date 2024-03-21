@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 from datetime import timedelta
 import pickle
+from abc import ABC, abstractmethod
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -210,8 +211,72 @@ def load_data(filename="addressbook.pkl") -> AddressBook:
             return pickle.load(f)
     except FileNotFoundError:
         return AddressBook()  # Повернення нової адресної книги, якщо файл не знайдено
+    
+class AbstractInterface(ABC):
+    @abstractmethod
+    def load_data(self):
+        pass
+
+    @abstractmethod
+    def save_data(self):
+        pass
+
+    @abstractmethod
+    def wait_command(self):
+        pass
+
+class Interface(AbstractInterface):
+    def load_data(self):
+        self.book = load_data()
+
+    def save_data(self):
+        save_data(self.book)
+
+    def wait_command(self):
+        print("Welcome to the assistant bot!")
+        while True:
+            user_input = input("Enter a command: ")
+            command, *args = parse_input(user_input)
+
+            if command in ["close", "exit"]:
+               self.save_data()
+               print("Good bye!")
+               break
+
+            elif command == "hello":
+                print("How can I help you?")
+
+            elif command == "add":
+                print(add_contact(self.book, args)) 
+
+            elif command == "change":
+                print(change_contact(self.book, args))
+
+            elif command == "phone":
+                print(phone_contact(self.book, args))
+
+            elif command == "all":
+                print(all_contact(self.book))
+
+            elif command == "add-birthday":
+                print(add_birthday(self.book, args))
+
+            elif command == "show-birthday":
+                print(show_birthday(self.book, args))
+
+            elif command == "birthdays":
+                print(birthdays(self.book))
+
+            else:
+                print("Invalid command.")
+
        
 def main():
+    InterfaceComm = Interface()
+    InterfaceComm.load_data()
+    InterfaceComm.wait_command()
+
+    return 0
     # book = AddressBook()
     book = load_data()
     
